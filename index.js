@@ -10,26 +10,75 @@ const connection = mysql.createConnection({
 const questions = [
     {
         type: 'input',
-        name: '',
-        message: ''
-    }
+        name: 'departmentName',
+        message: 'Please enter a department name'
+    },
     {
-
-    }
+        type: 'input',
+        name: 'roleData',
+        message: 'Please enter role data'
+    },
+    {
+        type: 'input',
+        name: 'employeeData',
+        message: 'Please enter employee data'
+    },
 ]
 
 inquirer.prompt(questions).then((answerObj) => {
-    const sql = `INSERT INTO biographies (name, author) VALUES (?, ?)`;
+    const sql = `INSERT INTO department (name) VALUES (?)`;
 
-    connection.query(sql, [answerObj.biographyName, answerObj.author], (err, results) => {
+    connection.query(sql, [answerObj.departmentName], (err, results) => {
         if (err) return console.log(err);
 
-        connection.query('SELECT * FROM biographies', (err, data) => {
+        connection.query('SELECT * FROM department', (err, data) => {
             if (err) return console.log(err);
 
-            console.log('New biography and author added\n,',);
+            console.log('New department added\n,',);
 
-            connection.query('SELECT * FROM biographies', (err, data) => {
+            connection.query('SELECT * FROM department', (err, data) => {
+                if(err) return console.log(err);
+                console.log(data);
+            });
+
+            connection.end();
+        });
+    });
+});
+
+inquirer.prompt(questions).then((answerObj) => {
+    const sql = `INSERT INTO role (name, salary, department) VALUES (?, ?, ?)`;
+
+    connection.query(sql, [answerObj.roleData], (err, results) => {
+        if (err) return console.log(err);
+
+        connection.query('SELECT * FROM role', (err, data) => {
+            if (err) return console.log(err);
+
+            console.log('New role added\n,',);
+
+            connection.query('SELECT * FROM role', (err, data) => {
+                if(err) return console.log(err);
+                console.log(data);
+            });
+
+            connection.end();
+        });
+    });
+});
+
+inquirer.prompt(questions).then((answerObj) => {
+    const sql = `INSERT INTO employee (id, first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
+
+    connection.query(sql, [answerObj.employeeData], (err, results) => {
+        if (err) return console.log(err);
+
+        connection.query('SELECT * FROM employee', (err, data) => {
+            if (err) return console.log(err);
+
+            console.log('New employee added\n,',);
+
+            connection.query('SELECT * FROM employee', (err, data) => {
                 if(err) return console.log(err);
                 console.log(data);
             });

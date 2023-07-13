@@ -1,19 +1,25 @@
-INSERT INTO  (first_name, last_name) 
+INSERT INTO department (name)
+VALUES (Engineering),
+(Marketing),
+(Accounting),
+(Sales),
+(Legal),
+
+INSERT INTO role (id, title, salary, department_id)
+VALUES (1),
+ (2),
+ (3),
+ (4),
+ (5);
+
+INSERT INTO employee (first_name, last_name, role_id) 
 VALUES ('John', 'Jones'),
     ('Jacob', 'Marley'),
     ('Jingle', 'Bells'),
     ('Heimer', 'Schmidt'),
-    ('Minnie', 'Mouse'),
     ('Mickey', 'Mouse');
 
-INSERT INTO  (project_name, student_id)
-VALUES ('soundtrack', 1),
-    ('finances', 2),
-    ('soundtrack', 2),
-    ('soundtrack', 3),
-    ('soundtrack', 4),
-    ('animation', 5),
-    ('animation', 6);
+    
 
     SELECT 
     CONCAT(first_name, ' ', last_name) AS student_name,
