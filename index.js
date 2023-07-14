@@ -1,4 +1,5 @@
 const inquirer = require('inquirer');
+const fs = require('fs');
 const mysql = require('mysql2');
 const consoleTable = require('console.table');
 
@@ -19,6 +20,8 @@ const startTracking = async () => {
             message: "Main Menu",
             choices: [
                 "View All Employees",
+                "View All Roles",
+                "View All Departments",
                 "View All Employees by ROLE",
                 "View All Employees by DEPARTMENT",
                 "View All Employees by MANAGER",
@@ -36,37 +39,61 @@ const startTracking = async () => {
         .then((answer) => {
             // Call the appropriate function based on the user's choice
             switch (answer.action) {
-                case 'View All Departments':
-                    viewAllDepartments();
+                case 'View All Employees':
+                    viewAllEmployees();
                     break;
                 case 'View All Roles':
                     viewAllRoles();
                     break;
-                case 'View All Employees':
-                    viewAllEmployees();
+                case 'View All Departments':
+                    viewAllDepartments();
                     break;
-                case 'Add a Department':
-                    addDepartment();
+                case 'View All Employees by DEPARTMENT':
+                    viewAllEmployeesByDepartment();
                     break;
-                case 'Add a Role':
-                    addRole();
+                case 'View All Employees by ROLE':
+                    viewAllEmployeesByRole();
                     break;
-                case 'Add an Employee':
+                case 'View All Employees by MANAGER':
+                    viewAllEmployeesByManager();
+                    break;
+                case 'Add Employee':
                     addEmployee();
                     break;
-                case 'Update an Employee Role':
+                case 'Add Role':
+                    addRole();
+                    break;
+                case 'Add Department':
+                    addDepartment();
+                    break;
+                case 'Update Employee ROLE':
                     updateEmployeeRole();
+                    break;
+                case 'Update Employee MANGER':
+                    updateEmployeeManager();
+                    break;
+                case 'Delete Employee':
+                    deleteEmployee();
+                    break;
+                case 'Delete ROLE':
+                    deleteRole();
+                    break;
+                case 'Delete DEPARTMENT':
+                    deleteDepartment();
+                    break;
+                case 'View Department Budgets':
+                    viewDepartmentBudgets();
                     break;
                 case 'Exit':
                     connection.end();
                     console.log('Employees managed!');
-                    break;
                 default:
                     console.log('Invalid choice. Please select a valid option.');
                     startTracking();
-            }
+            };
         });
-}
+};
+
 
 // Prompt for department data
 const departmentQuestions = [
@@ -208,6 +235,81 @@ const viewAllEmployees = () => {
     );
 };
 
+const viewAllEmployeesByDepartment = () => {
+    inquirer
+        .prompt({
+            name: "department",
+            type: "input",
+            message: "Enter the department name:",
+        })
+        .then((answer) => {
+            const departmentName = answer.departmentName;
+            const sql = `
+          SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department
+          FROM employee
+          LEFT JOIN role ON employee.role_id = role.id
+          LEFT JOIN department ON role.department_id = department.id
+          WHERE role.title = ?
+        `;
+
+            connection.query(sql, [departmentName], (err, data) => {
+                if (err) return console.log(err);
+                console.table(`Employees in the role "${departmentName}":`, data);
+                startTracking();
+            });
+        });
+};
+
+const viewAllEmployeesByRole = () => {
+    inquirer
+        .prompt({
+            name: "role",
+            type: "input",
+            message: "Enter the role name:",
+        })
+        .then((answer) => {
+            const roleName = answer.roleTitle;
+            const sql = `
+          SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department
+          FROM employee
+          LEFT JOIN role ON employee.role_id = role.id
+          LEFT JOIN department ON role.department_id = department.id
+          WHERE role.title = ?
+        `;
+
+            connection.query(sql, [roleName], (err, data) => {
+                if (err) return console.log(err);
+                console.table(`Employees in the role "${roleName}":`, data);
+                startTracking();
+            });
+        });
+};
+
+const viewAllEmployeesByManager = () => {
+    inquirer
+        .prompt({
+            name: "managerId",
+            type: "input",
+            message: "Enter the manager ID:",
+        })
+        .then((answer) => {
+            const managerId = answer.managerId;
+            const sql = `
+                SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department
+                FROM employee
+                LEFT JOIN role ON employee.role_id = role.id
+                LEFT JOIN department ON role.department_id = department.id
+                WHERE employee.manager_id = ?
+            `;
+
+            connection.query(sql, [managerId], (err, data) => {
+                if (err) return console.log(err);
+                console.table(`Employees managed by Manager ID "${managerId}":`, data);
+                startTracking();
+            });
+        });
+};
+
 // Update Employee Role
 const updateEmployeeRole = () => {
     // Prompt for employee ID and new role ID
@@ -249,5 +351,25 @@ connection.connect((err) => {
         return;
     }
     console.log('Connected to the employee_db database.');
-    startTracking();
+
+    // Read the seeds.sql file
+    fs.readFile('db/seeds.sql', 'utf8', (err, sql) => {
+        if (err) {
+            console.error('Error reading seeds.sql file:', err);
+            return;
+        }
+
+        // Execute the SQL statements in the seeds.sql file
+        connection.query(sql, (err) => {
+            if (err) {
+                console.error('Error executing seeds.sql:', err);
+                return;
+            }
+
+            console.log('Seeds executed successfully.');
+
+            // Start the application
+            startTracking();
+        });
+    });
 });

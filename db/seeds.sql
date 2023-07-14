@@ -12,7 +12,7 @@ VALUES ('Senior Engineer', 100000, 1),
        ('Senior Accountant', 100000, 3),
        ('Head of Sales', 100000, 4),
        ('Chief Legal Representative', 100000, 5),
-       ('Tech Support Lead', 70000, 6);
+       ('Tech Support Lead', 100000, 6);
 
 INSERT INTO employee (first_name, last_name, role_id) 
 VALUES ('Dave', 'Cutler', 1),
