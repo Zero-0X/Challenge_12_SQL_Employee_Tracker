@@ -1,7 +1,7 @@
 # Challenge_12_SQL_Employee_Tracker
 
   ## Description
-  MYSQL Employee Tracker using node js
+  MySQL Employee Tracker using node js
   
   ## Table of Contents
   - [Installation](#installation)
